@@ -71,7 +71,7 @@ def notify():
                 msg = []
                 for m in messages:
                     if m['uid'] == uid:
-                        msg.append(markup_escape_text(m['body']))
+                        msg.insert(0, markup_escape_text(m['body']))
 
                 n = pynotify.Notification(title, u'\n'.join(msg))
                 n.set_timeout(5000)
