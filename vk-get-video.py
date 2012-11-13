@@ -8,6 +8,7 @@ import shlex
 from urllib2 import build_opener, HTTPCookieProcessor
 from urllib import urlencode
 from cookielib import CookieJar
+from htmlentitydefs import name2codepoint
 
 from netrc import netrc
 
@@ -24,6 +25,26 @@ HD_RES = {
 
 cj = CookieJar()
 opener = build_opener(HTTPCookieProcessor(cj))
+
+def decode_html_entities(text):
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                pass
+        else:
+            try:
+                text = unichr(name2codepoint[text[1:-1]])
+            except KeyError:
+                pass
+        return text
+    return re.sub("&#?\w+;", fixup, text)
 
 def login():
     result = netrc().authenticators('vk.com')
@@ -66,7 +87,8 @@ def get_url(url):
         res = HD_RES[data.get('hd', 1)]
         vurl = "http://cs{host}.vk.com/u{uid}/videos/{vtag}.{res}.mp4".format(res=res, **data)
 
-    fname = data['md_title'].strip() + '.' + vurl.rpartition('.')[2]
+    fname = decode_html_entities(data['md_title'].strip()) + '.' + vurl.rpartition('.')[2]
+    fname = fname.replace('/', '-')
     return {'url':vurl, 'fname':fname}
 
 def run_cmd(cmd, data):
