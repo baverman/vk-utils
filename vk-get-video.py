@@ -44,7 +44,7 @@ def decode_html_entities(text):
             except KeyError:
                 pass
         return text
-    return re.sub("&#?\w+;", fixup, text)
+    return re.sub("&#?\w+;", fixup, text.decode('utf-8')).encode('utf-8')
 
 def login():
     result = netrc().authenticators('vk.com')
