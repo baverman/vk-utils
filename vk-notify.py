@@ -19,17 +19,19 @@ VK_OAUTH_PARAMS = {
 }
 
 VK_METHOD_URL = 'https://api.vk.com/method/{}?{}'
+TIMEOUT = 2
 
 
 class VK(object):
     def __init__(self, access_token):
         self.opener = urllib2.build_opener()
+        #self.opener.process_request['https'][0]._debuglevel = 1
         self.access_token = access_token
 
     def call(self, method, **kwargs):
         kwargs['access_token'] = self.access_token
         url = VK_METHOD_URL.format(method, urlencode(kwargs))
-        result = self.opener.open(url)
+        result = self.opener.open(url, timeout=TIMEOUT)
         response = result.read()
         return loads(response)['response']
 
