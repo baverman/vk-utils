@@ -33,7 +33,12 @@ class VK(object):
         url = VK_METHOD_URL.format(method, urlencode(kwargs))
         result = self.opener.open(url, timeout=TIMEOUT)
         response = result.read()
-        return loads(response)['response']
+        response = loads(response)
+
+        if 'error' in response:
+            raise Exception(response['error']['error_msg'])
+
+        return response['response']
 
 
 def get_oauth_url():
@@ -121,7 +126,7 @@ def notify():
             tm += 2000
 
     except Exception as e:
-        n = pynotify.Notification('VK', markup_escape_text(str(type(e))))
+        n = pynotify.Notification('VK', markup_escape_text(str(e)))
         n.set_timeout(5000)
         n.show()
         raise
@@ -135,8 +140,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.request_token:
+        print 'Open following url in browser:\n'
         print get_oauth_url()
-    if args.token:
+        print '\nAnd run vk-notify -s "Url copy-pasted from address bar"'
+    elif args.token:
         store_settings(args.token)
     else:
         notify()
