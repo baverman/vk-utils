@@ -81,7 +81,8 @@ def get_url(url):
     resp = opener.open('http://vk.com/al_video.php', urlencode(params))
     match = re.search('var\svars\s=\s(\{.+?\})', resp.read())
     data = literal_eval(match.group(1).decode('windows-1251').encode('utf-8').replace('\\"', '"'))
-    if 'vkadre.ru' in data['host'] and not data['no_flv']:
+
+    if isinstance(data['host'], basestring) and 'vkadre.ru' in data['host'] and not data['no_flv']:
         vurl = "http://{host}/assets/videos/{vtag}{vkid}.vk.flv".format(**data)
     else:
         res = HD_RES[data.get('hd', 1)]
