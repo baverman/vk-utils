@@ -79,7 +79,8 @@ def get_url(url):
     }
 
     resp = opener.open('http://vk.com/al_video.php', urlencode(params))
-    match = re.search('var\svars\s=\s(\{.+?\})', resp.read())
+    # print resp.read()
+    match = re.search('var\svars\s=\s(\{.+?\});', resp.read())
     data = literal_eval(match.group(1).decode('windows-1251').encode('utf-8').replace('\\"', '"'))
 
     if isinstance(data['host'], basestring) and 'vkadre.ru' in data['host'] and not data['no_flv']:
